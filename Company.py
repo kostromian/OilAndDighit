@@ -6,3 +6,4 @@ class Company():
         self.atributes = []
         self.mother = mother
         self.children = []
+

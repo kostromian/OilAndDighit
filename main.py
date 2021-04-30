@@ -120,13 +120,17 @@ class Window(QWidget):
                 self.childrenButtons[i].setGeometry(300, 300, 60, 60)
                 self.childrenButtons[i].move(int(R * math.cos(angle * math.pi / 180)) + 300,
                                              -int(R * math.sin(angle * math.pi / 180)) + 300)
-                self.childrenButtons[i].clicked.connect(functools.partial(self.reuse, selectedCompany=self.children[i]))
                 angle += 30
                 if angle >= 360:
                     R += 80
                     angle = angle % 60 + 30
             else:
                 self.childrenButtons[i].show()
+            try:
+                childrenButtons[i].clicked.disconnect()
+            except Exception:
+                pass
+            self.childrenButtons[i].clicked.connect(functools.partial(self.reuse, selectedCompany=self.children[i]))
             self.childrenButtons[i].setText(self.children[i].name + " " + str(self.children[i].imp_depend))
             font = "background-color:rgb(100,"+ str(255 * self.children[i].imp_depend / 100) + ",150)";
             self.childrenButtons[i].setStyleSheet("border-radius : 15; border : 2px solid black; " + font)
@@ -146,6 +150,10 @@ class Window(QWidget):
             self.label.text = ""
         else:
             self.motherbutton.show()
+            try:
+                self.motherbutton.clicked.disconnect()
+            except Exception:
+                pass
             self.motherbutton.clicked.connect(functools.partial(self.reuse, selectedCompany = self.getMother(selectedCompany.mother)))
             self.motherbutton.setText(self.getMother(selectedCompany.mother).name + " " +
                                       str(self.getMother(selectedCompany.mother).imp_depend))

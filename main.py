@@ -1,19 +1,15 @@
 import functools
 import sys
 import Company
-import math# sys нужен для передачи argv в QApplication
+import math
 from PyQt5.QtWidgets import *
-import design
 import designInfo
 from PyQt5 import QtCore
-from PyQt5.QtChart import QChart, QChartView, QPieSeries, QPieSlice
+from PyQt5.QtChart import QChart, QPieSeries
 
 global alldata
-global data
 class SecondWindow(QDialog, designInfo.Ui_Dialog):
     def __init__(self):
-        global data
-        global alldata
         super().__init__()
         self.setupUi(self)
         self.label_2.setText(data.name)
@@ -31,8 +27,6 @@ class SecondWindow(QDialog, designInfo.Ui_Dialog):
         series.append("Зависимые", x)
         series.append("Независимые", y)
 
-        # adding slice
-        slice = QPieSlice()
         slice = series.slices()[1]
         slice.setExploded(True)
         slice.setLabelVisible(True)
@@ -66,13 +60,10 @@ class SecondWindow(QDialog, designInfo.Ui_Dialog):
 
 
 class Window(QWidget):
-    def __init__(self):
+    def __init__(self, alldata):
         super().__init__()
-        self.setStyleSheet("background-color: rgb(255, 239, 219);");
-        #QMainWindow.setIconSize(self, QSizeiconSize)
-        self.data = Company.innit_data()
-        global alldata
-        alldata = self.data
+        self.setStyleSheet("background-color: rgb(255, 239, 219);")
+        self.data = alldata
         self.setWindowTitle("GetLucky")
         self.button = QPushButton(self)
         self.button.clicked.connect(self.openWindow)
@@ -89,7 +80,6 @@ class Window(QWidget):
         self.button.setGeometry(300 - 30, 300 - 30, 120, 120)
         self.label = QLabel(self)
         self.label.setStyleSheet("background-color: rgb(227, 189, 229)")
-        #self.label.setText("test")
         self.label.setGeometry(300 + 18, 300 - 20, 35, 15)
         self.childrenButtons = []
         self.countInit = 0
@@ -127,12 +117,12 @@ class Window(QWidget):
             else:
                 self.childrenButtons[i].show()
             try:
-                childrenButtons[i].clicked.disconnect()
+                self.childrenButtons[i].clicked.disconnect()
             except Exception:
                 pass
             self.childrenButtons[i].clicked.connect(functools.partial(self.reuse, selectedCompany=self.children[i]))
             self.childrenButtons[i].setText(self.children[i].name + " " + str(self.children[i].imp_depend))
-            font = "background-color:rgb(100,"+ str(255 * self.children[i].imp_depend / 100) + ",150)";
+            font = "background-color:rgb(100,"+ str(255 * self.children[i].imp_depend / 100) + ",150)"
             self.childrenButtons[i].setStyleSheet("border-radius : 15; border : 2px solid black; " + font)
 
     def clear(self):
@@ -154,9 +144,10 @@ class Window(QWidget):
                 self.motherbutton.clicked.disconnect()
             except Exception:
                 pass
-            self.motherbutton.clicked.connect(functools.partial(self.reuse, selectedCompany = self.getMother(selectedCompany.mother)))
+            self.motherbutton.clicked.connect(functools.partial(self.reuse,
+                selectedCompany = self.getMother(selectedCompany.mother)))
             self.motherbutton.setText(self.getMother(selectedCompany.mother).name + " " +
-                                      str(self.getMother(selectedCompany.mother).imp_depend))
+                str(self.getMother(selectedCompany.mother).imp_depend))
         self.selectedCompany = selectedCompany
         self.clear()
         self.draw()
@@ -167,23 +158,9 @@ class Window(QWidget):
         self.infoWindow = SecondWindow()
         self.infoWindow.show()
 
-
-
-
-
-# def main():
-#     app = QtWidgets.QApplication(sys.argv)  # Новый экземпляр QApplication
-#     window = ExampleApp()  # Создаём объект класса ExampleApp
-#     window.show()  # Показываем окно
-#     app.exec_()  # и запускаем приложение
-
-if __name__ == '__main__':  # Если мы запускаем файл напрямую, а не импортируем
-
-
+if __name__ == '__main__':
+    alldata = Company.innit_data()
     app = QApplication(sys.argv)
-    window = Window()
-    window2 = Window()
-
+    window = Window(alldata)
     window.show()
     sys.exit(app.exec_())
-    #main()  то запускаем функцию main()
